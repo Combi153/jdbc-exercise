@@ -11,6 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
@@ -76,5 +77,36 @@ class UserDaoTest {
         assertThrows(EmptyResultDataAccessException.class, () -> {
                 userDao.get(user2.getId());
         });
+    }
+
+    @Test
+    void getAll() throws SQLException, ClassNotFoundException {
+        userDao.deleteAll();
+        List<User> users0 = userDao.getAll();
+        assertEquals(0, users0.size());
+
+        userDao.add(user1);
+        List<User> users1 = userDao.getAll();
+        assertEquals(1, users1.size());
+        checkSameUser(user1, users1.get(0));
+
+        userDao.add(user2);
+        List<User> users2 = userDao.getAll();
+        assertEquals(2, users2.size());
+        checkSameUser(user1, users2.get(0));
+        checkSameUser(user2, users2.get(1));
+
+        userDao.add(user3);
+        List<User> users3 = userDao.getAll();
+        assertEquals(3, users3.size());
+        checkSameUser(user1, users3.get(0));
+        checkSameUser(user2, users3.get(1));
+        checkSameUser(user3, users3.get(2));
+    }
+
+    private void checkSameUser(User user1, User user2){
+        assertEquals(user1.getId(), user2.getId());
+        assertEquals(user1.getName(), user2.getName());
+        assertEquals(user1.getPassword(), user2.getPassword());
     }
 }

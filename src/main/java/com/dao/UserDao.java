@@ -3,10 +3,12 @@ package com.dao;
 import com.domain.User;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.jdbc.Sql;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.List;
 import java.util.Map;
 
 public class UserDao {
@@ -26,27 +28,17 @@ public class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection c = dataSource.getConnection();
-
-        PreparedStatement ps = c.prepareStatement("SELECT * FROM users WHERE id = ?");
-        ps.setString(1, id);
-
-        ResultSet rs = ps.executeQuery();
-        User user = null;
-        if (rs.next()){
-            user = new User();
-            user.setId(rs.getString("id"));
-            user.setName(rs.getString("name"));
-            user.setPassword(rs.getString("password"));
-        }
-
-        rs.close();
-        ps.close();
-        c.close();
-
-        if (user == null) throw new EmptyResultDataAccessException(1);
-        return user;
-
+        String sql = "SELECT * FROM users WHERE id = ?";
+        RowMapper<User> rowMapper = new RowMapper<>() {
+            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                User user = new User();
+                user.setId(rs. getString("id"));
+                user.setName(rs. getString("name"));
+                user.setPassword(rs. getString("password"));
+                return user;
+            }
+        };
+        return this.jdbcTemplate.queryForObject(sql, rowMapper, id);
     }
 
     public void deleteAll() throws SQLException {
@@ -54,37 +46,19 @@ public class UserDao {
     }
 
     public int getCount() throws SQLException {
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        return this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
+    }
 
-        try {
-            c = dataSource.getConnection();
-            ps = c.prepareStatement("SELECT COUNT(*) FROM users");
-            rs = ps.executeQuery();
-            rs.next();
-            return rs.getInt(1);
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e){
-                }
-            }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e){
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e){
-                }
-            }
-        }
+    public List<User> getAll() {
+        return this.jdbcTemplate.query("SELECT * FROM users ORDER BY id",
+                new RowMapper<User>() {
+                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        User user = new User();
+                        user.setId(rs.getString("id"));
+                        user.setName(rs.getString("name"));
+                        user.setPassword(rs.getString("password"));
+                        return user;
+                    }
+                });
     }
 }
