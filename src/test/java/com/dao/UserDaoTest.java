@@ -21,8 +21,13 @@ class UserDaoTest {
     @Test
     void addAndGet() throws SQLException, ClassNotFoundException {
         UserDao userDao = context.getBean("awsUserDao", UserDao.class);
+        userDao.deleteAll();
+        assertEquals(0, userDao.getCount());
+
         User user = new User ("1", "chanmin", "1123");
+
         userDao.add(user);
+        assertEquals(1, userDao.getCount());
 
         User selectedUser = userDao.get(user.getId());
         assertEquals(user.getId(), selectedUser.getId());
