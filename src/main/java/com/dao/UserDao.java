@@ -2,6 +2,7 @@ package com.dao;
 
 import com.domain.User;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 
 import javax.sql.DataSource;
@@ -12,25 +13,17 @@ public class UserDao {
 
     private DataSource dataSource;
     private JdbcContext jdbcContext;
+    private JdbcTemplate jdbcTemplate;
 
     public UserDao(DataSource dataSource) {
         this.dataSource = dataSource;
         this.jdbcContext = new JdbcContext(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
-        this.jdbcContext.workWithStatementStrategy(
-                new StatementStrategy() {
-                    public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                        PreparedStatement ps = c.prepareStatement("INSERT INTO users(id, name, password) VALUES(?, ?, ?)");
-                        ps.setString(1, user.getId());
-                        ps.setString(2, user.getName());
-                        ps.setString(3, user.getPassword());
-                        return ps;
-                    }
-                }
-            );
-        }
+        this.jdbcTemplate.update("INSERT INTO users(id, name, password) VALUES(?, ?, ?)", user.getId(), user.getName(), user.getPassword());
+    }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
         Connection c = dataSource.getConnection();
@@ -57,7 +50,7 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        this.jdbcContext.executeSql("DELETE FROM users");
+        this.jdbcTemplate.update("DELETE FROM users");
     }
 
     public int getCount() throws SQLException {
