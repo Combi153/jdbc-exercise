@@ -14,12 +14,19 @@ import java.util.Map;
 public class UserDao {
 
     private DataSource dataSource;
-    private JdbcContext jdbcContext;
     private JdbcTemplate jdbcTemplate;
+    private RowMapper<User> userMapper = new RowMapper<User>() {
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+            User user = new User();
+            user.setId(rs.getString("id"));
+            user.setName(rs.getString("name"));
+            user.setPassword(rs.getString("password"));
+            return user;
+        }
+    };
 
     public UserDao(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.jdbcContext = new JdbcContext(dataSource);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
@@ -28,17 +35,7 @@ public class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        String sql = "SELECT * FROM users WHERE id = ?";
-        RowMapper<User> rowMapper = new RowMapper<>() {
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                User user = new User();
-                user.setId(rs. getString("id"));
-                user.setName(rs. getString("name"));
-                user.setPassword(rs. getString("password"));
-                return user;
-            }
-        };
-        return this.jdbcTemplate.queryForObject(sql, rowMapper, id);
+        return this.jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?", this.userMapper, id);
     }
 
     public void deleteAll() throws SQLException {
@@ -50,15 +47,6 @@ public class UserDao {
     }
 
     public List<User> getAll() {
-        return this.jdbcTemplate.query("SELECT * FROM users ORDER BY id",
-                new RowMapper<User>() {
-                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        User user = new User();
-                        user.setId(rs.getString("id"));
-                        user.setName(rs.getString("name"));
-                        user.setPassword(rs.getString("password"));
-                        return user;
-                    }
-                });
+        return this.jdbcTemplate.query("SELECT * FROM users ORDER BY id", this.userMapper);
     }
 }
