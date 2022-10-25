@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.dao.UserDaoTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-10-25T02:11:02" hostname="DESKTOP-KGB7QQ1" time="0.999">
+<testsuite name="com.dao.UserDaoTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-10-25T02:18:46" hostname="DESKTOP-KGB7QQ1" time="1.024">
   <properties/>
-  <testcase name="addAndGet()" classname="com.dao.UserDaoTest" time="0.999"/>
+  <testcase name="addAndGet()" classname="com.dao.UserDaoTest" time="1.024"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

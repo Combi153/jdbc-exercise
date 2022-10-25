@@ -11,7 +11,8 @@ class UserDaoTest {
 
     @Test
     void addAndGet() throws SQLException, ClassNotFoundException {
-        UserDao userDao = new UserDao();
+        ConnectionMaker connectionMaker = new AwsConnectionMaker();
+        UserDao userDao = new UserDao(connectionMaker);
         User user = new User ("1", "chanmin", "1123");
         userDao.add(user);
 
