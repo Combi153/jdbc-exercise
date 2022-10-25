@@ -2,6 +2,7 @@ package com.dao;
 
 import com.domain.User;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.context.jdbc.Sql;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -53,28 +54,64 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        Connection c = dataSource.getConnection();
 
-        PreparedStatement ps = c.prepareStatement("DELETE FROM users");
-        ps.executeUpdate();
+        Connection c = null;
+        PreparedStatement ps = null;
 
-        ps.close();
-        c.close();
+        try{
+            c = dataSource.getConnection();
+            ps = c.prepareStatement("DELETE FROM users");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e){
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e){
+                }
+            }
+        }
     }
 
     public int getCount() throws SQLException {
-        Connection c = dataSource.getConnection();
+        Connection c = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
-        PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM users");
-
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        int count = rs.getInt(1);
-
-        rs.close();
-        ps.close();
-        c.close();
-
-        return count;
+        try {
+            c = dataSource.getConnection();
+            ps = c.prepareStatement("SELECT COUNT(*) FROM users");
+            rs = ps.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e){
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e){
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e){
+                }
+            }
+        }
     }
 }
